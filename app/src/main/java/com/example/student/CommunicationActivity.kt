@@ -35,7 +35,6 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
     private var wfdManager: WifiDirectManager? = null
 
     private lateinit var  studentIDEditText: EditText
-    private lateinit var client: Client
     private  var encryptionManager: EncryptionManager? = null
 
 
@@ -51,6 +50,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
 
     private var peerListAdapter: PeerListAdapter? = null
     private var chatListAdapter:ChatListAdapter? = null
+    private var client: Client? = null
     private var deviceIp: String = ""
 
 
@@ -58,12 +58,6 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_communication)
-//        client = Client(object : NetworkMessageInterface {
-//            override fun onContent(content: ContentModel) {
-//                // Handle the server response here
-//                Log.d("CommunicationActivity", "Received from server: ${content.message} from ${content.senderIp}")
-//            }
-//        })
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -80,17 +74,6 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
 
         studentIDEditText = findViewById(R.id.studentIDText)
 
-
-
-//        client = Client(object : NetworkMessageInterface {
-//            override fun onContent(content: ContentModel) {
-//                // Handle any message received from peers
-//                runOnUiThread {
-//                    chatListAdapter?.addItemToEnd(content)
-//                    Log.d("CommunicationActivity", "Received message: ${content.message} from IP: ${content.senderIp}")
-//                }
-//            }
-//        })
 
     }
     override fun onResume() {
@@ -123,17 +106,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         val wfdConnectedView:ConstraintLayout = findViewById(R.id.clHasConnection)
         wfdConnectedView.visibility = if(wfdHasConnection)View.VISIBLE else View.GONE
     }
-
-    fun sendMessage(view: View) {
-        val etMessage:EditText = findViewById(R.id.etMessage)
-        val etString = etMessage.text.toString()
-        val content = ContentModel(etString, deviceIp)
-        etMessage.text.clear()
-        client?.sendMessage(content)
-        chatListAdapter?.addItemToEnd(content)
-
-    }
-
+    
     override fun onWiFiDirectStateChanged(isEnabled: Boolean) {
         wfdAdapterEnabled = isEnabled
         var text = "There was a state change in the WiFi Direct. Currently it is "
@@ -172,7 +145,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         val toast = Toast.makeText(this, text , Toast.LENGTH_SHORT)
         toast.show()
         updateUI()
-        // here should change after connection
+
 
     }
 
@@ -188,7 +161,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         Log.d("Host connected", "Connection between student and : ${peer.deviceName} using address ${peer.deviceAddress}")
         if(studentID.isNotBlank()){
            val content = ContentModel(studentID, peer.deviceAddress)
-            client.sendMessage(content)
+            client?.sendMessage(content)
             Log.d("CommunicationActivity", "Sent Student ID: $studentID to peer: ${peer.deviceName} at ${peer.deviceAddress}")
         }
         else {
@@ -200,8 +173,6 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
             chatListAdapter?.addItemToEnd(content)
         }
     }
-
-
 
 
 }
