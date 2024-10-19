@@ -106,7 +106,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         val wfdConnectedView:ConstraintLayout = findViewById(R.id.clHasConnection)
         wfdConnectedView.visibility = if(wfdHasConnection)View.VISIBLE else View.GONE
     }
-    
+
     override fun onWiFiDirectStateChanged(isEnabled: Boolean) {
         wfdAdapterEnabled = isEnabled
         var text = "There was a state change in the WiFi Direct. Currently it is "
@@ -157,15 +157,40 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
     override fun onPeerClicked(peer: WifiP2pDevice) {
         wfdManager?.connectToPeer(peer)
         wfdHasConnection = true
+        deviceIp = peer.deviceAddress
         val studentID = studentIDEditText.text.toString()
-        Log.d("Host connected", "Connection between student and : ${peer.deviceName} using address ${peer.deviceAddress}")
+        Log.d("Host connected", "Connection between student and : ${peer.deviceName} using address ${deviceIp}")
         if(studentID.isNotBlank()){
-           val content = ContentModel(studentID, peer.deviceAddress)
+           val content = ContentModel(studentID, deviceIp)
             client?.sendMessage(content)
-            Log.d("CommunicationActivity", "Sent Student ID: $studentID to peer: ${peer.deviceName} at ${peer.deviceAddress}")
+            Log.d("CommunicationActivity", "Sent Student ID: $studentID to peer: ${peer.deviceName} at ${deviceIp}")
         }
         else {
             val toast = Toast.makeText(this, "Student ID cannot be empty", Toast.LENGTH_SHORT)
+        }
+    }
+    fun sendMessage(view: View) {
+        val etMessage: EditText = findViewById(R.id.etMessage)
+        val messageText = etMessage.text.toString()
+
+        if (messageText.isNotEmpty()) {
+            // Create the content model with the message and the local device IP
+            val content = ContentModel(messageText, deviceIp)
+            // Send the message using the client
+            client?.sendMessage(content)
+
+            // Clear the input field after sending the message
+            etMessage.text.clear()
+
+            // Optionally add the message to the local chat list for display
+            chatListAdapter?.addItemToEnd(content)
+
+            // Log the action
+            Log.d("CommunicationActivity", "Sent message: $messageText to $deviceIp")
+        } else {
+            // Show a message if the EditText is empty
+            val toast = Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT)
+            toast.show()
         }
     }
     override fun onContent(content: ContentModel) {

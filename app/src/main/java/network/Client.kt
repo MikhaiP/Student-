@@ -58,6 +58,7 @@ class Client (private val networkMessageInterface: NetworkMessageInterface, priv
             val contentAsStr:String = Gson().toJson(encryptedContent)
             writer.write("$contentAsStr\n")
             writer.flush()
+            Log.e("Sender", "Message was sent to ${content.senderIp}")
         }
 
     }
