@@ -72,6 +72,11 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         rvPeerList.adapter = peerListAdapter
         rvPeerList.layoutManager = LinearLayoutManager(this)
 
+        chatListAdapter = ChatListAdapter()
+        val rvChat: RecyclerView = findViewById(R.id.rvChat)
+        rvChat.adapter = chatListAdapter
+        rvChat.layoutManager = LinearLayoutManager(this)
+
         studentIDEditText = findViewById(R.id.studentIDText)
 
 
